@@ -1,0 +1,26 @@
+services:
+  kuma:
+    image: louislam/uptime-kuma
+    restart: unless-stopped
+    expose:
+      - 3001
+    #ports:
+      #- 3001:3001
+    environment:
+      NODE_EXTRA_CA_CERTS: /app/data/certs/ca.pem
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.kuma.entrypoints=websecure"
+      - "traefik.http.routers.kuma.rule=Host(`DOMAIN`)"
+      - "traefik.http.routers.kuma.tls.certresolver=http-challenge"
+    volumes:
+      - ./data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - default
+      - traefik-proxy
+networks:
+  default:
+  traefik-proxy:
+    name: traefik-proxy
+    external: true
