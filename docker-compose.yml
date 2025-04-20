@@ -2,6 +2,12 @@ services:
   kuma:
     image: louislam/uptime-kuma
     restart: unless-stopped
+    user: ${PUID:-1000}:${PGID:-1000}
+    security_opt:
+      - "no-new-privileges:true"
+    cap-drop:
+      - SETUID
+      - SETGID
     expose:
       - 3001
     #ports:
@@ -11,16 +17,19 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.kuma.entrypoints=websecure"
-      - "traefik.http.routers.kuma.rule=Host(`DOMAIN`)"
+      - "traefik.http.routers.kuma.rule=Host(`${DOMAIN}`)"
       - "traefik.http.routers.kuma.tls.certresolver=http-challenge"
     volumes:
       - ./data:/app/data
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+#      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - default
       - traefik-proxy
+      - socket-proxy
 networks:
   default:
   traefik-proxy:
     name: traefik-proxy
+    external: true
+  socket-proxy:
     external: true
