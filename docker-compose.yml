@@ -50,7 +50,6 @@ services:
 networks:
   default:
   traefik-proxy:
-    name: traefik-proxy
     external: true
   socket-proxy:
     external: true
